@@ -1,0 +1,58 @@
+[manifest]
+version = "1.0.0"
+priority = 0
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = "local rows, protos = {}, {'collection', 'challenges', 'joker_stickers', 'deck_stake_wins'}"
+position = "after"
+payload = '''table.insert(protos, 4, 'gold_stickers')
+local gold_stickers = 0
+for _, v in pairs(G.P_CENTERS) do
+    if v.set == "Joker" then
+        if
+            get_joker_win_sticker(v, false)
+            == "gold"
+        then
+            gold_stickers = gold_stickers + 1
+        end
+    end
+end
+'''
+match_indent = true
+times = 1
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '''elseif v == 'challenges' then
+  tab, val, max = _profile_progress.challenges, 'tally', _profile_progress.challenges.of
+'''
+position = "after"
+payload = '''
+elseif v == 'gold_stickers' then
+  tab, val, max = _profile_progress.joker_stickers, 'tally', _profile_progress.joker_stickers.of/8
+'''
+match_indent = true
+times = 1
+
+
+[[patches]]
+[patches.pattern]
+target = "functions/UI_definitions.lua"
+pattern = '''
+} or v == 'challenges' and {
+  {n=G.UIT.O, config={object = DynaText({string = {math.floor(0.01+100*_profile_progress.challenges.tally/_profile_progress.challenges.of)..'%'}, colours = {G.C.WHITE},shadow = true, float = true, scale = 0.55*text_scale})}},
+  {n=G.UIT.T, config={text = " (".._profile_progress.challenges.tally..'/'.._profile_progress.challenges.of..")", scale = 0.35, colour = G.C.JOKER_GREY}}
+}
+'''
+position = "after"
+payload = '''
+or v == 'gold_stickers' and {
+    {n=G.UIT.O, config={object = DynaText({string = {math.floor(0.01+100*gold_stickers/(_profile_progress.joker_stickers.of/8))..'%'}, colours = {G.C.WHITE},shadow = true, float = true, scale = 0.55*text_scale})}},
+    {n=G.UIT.T, config={text = " (".. gold_stickers ..'/'.. (_profile_progress.joker_stickers.of/8) ..")", scale = 0.35, colour = G.C.JOKER_GREY}}
+}
+'''
+match_indent = true
+times = 1
