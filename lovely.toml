@@ -32,7 +32,9 @@ pattern = '''elseif v == 'challenges' then
 position = "after"
 payload = '''
 elseif v == 'gold_stickers' then
-  tab, val, max = _profile_progress.joker_stickers, 'tally', _profile_progress.joker_stickers.of/8
+  max = _profile_progress.joker_stickers.of / 8
+  tab = { of = max, tally = gold_stickers}
+  val = 'tally'
 '''
 match_indent = true
 times = 1
